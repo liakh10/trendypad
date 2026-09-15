@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script src="/config.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deploy · Trendypad</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/png" href="/assets/favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{--paper:#f3efe6;--sheet:#fffdf8;--ink:#16131a;--dim:#5d5763;--line:#dcd3c3;--pink:#ff2d87}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:"DM Mono",monospace;font-size:13px;line-height:1.7;padding:clamp(16px,4vw,48px)}
+.in{width:min(800px,100%);margin:0 auto}
+h1{font-family:Syne,sans-serif;font-weight:800;font-size:clamp(34px,6vw,58px);line-height:1;letter-spacing:-.03em}
+h1 em{font-style:normal;color:var(--pink)}
+h2{font-family:Syne,sans-serif;font-weight:800;font-size:20px;margin-bottom:6px}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row + .row{margin-top:12px}
+.btn{height:42px;padding:0 18px;border-radius:999px;border:0;background:var(--ink);color:var(--paper);font:inherit;font-weight:500;cursor:pointer}
+.btn.pink{background:var(--pink);color:#fff}
+.btn:disabled{opacity:.3;cursor:default}
+input{height:42px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font:inherit;min-width:0;flex:1}
+.dim{color:var(--dim)} .ok{color:#127a4a} .bad{color:#c62a3a}
+.st{word-break:break-all}
+pre{font-family:inherit;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;white-space:pre-wrap;word-break:break-all}
+ol{margin:10px 0 0 18px}
+a{color:var(--pink)}
+</style>
+</head>
+<body><div class="in">
+  <h1>Deploy <em>Trendypad</em></h1>
+  <p class="dim" style="margin-top:10px">Everything below is sent from your own wallet on Robinhood Chain. That wallet becomes the owner of the factory and the buyback and the buyback keeper until you change them. Progress is remembered in this browser</p>
+  <div class="card">
+    <div class="row"><button class="btn pink" id="connect">Connect wallet</button><span id="who" class="dim"></span></div>
+    <ol class="dim">
+      <li>TrendyToken implementation, cloned for every token</li>
+      <li>TrendyPad implementation, cloned for every pad</li>
+      <li>TrendyFactory with the Gentle, Standard and Steep curves and a 0.5% protocol fee</li>
+      <li>TrendyRouter for ETH trades</li>
+      <li>TrendyBuyback for $TRENDY</li>
+      <li>Connect the router and the buyback to the factory, each can be set once</li>
+      <li>Allow the Uniswap Universal Router as the buyback swap target</li>
+      <li>Put the three addresses into config.js and push</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>Contracts</h2>
+    <div class="row"><button class="btn" data-step="token" disabled>1 · Token implementation</button><span class="dim st" id="s-token"></span></div>
+    <div class="row"><button class="btn" data-step="pad" disabled>2 · Pad implementation</button><span class="dim st" id="s-pad"></span></div>
+    <div class="row"><button class="btn" data-step="factory" disabled>3 · Factory</button><span class="dim st" id="s-factory"></span></div>
+    <div class="row"><button class="btn" data-step="router" disabled>4 · Router</button><span class="dim st" id="s-router"></span></div>
+    <div class="row"><button class="btn" data-step="buyback" disabled>5 · Buyback</button><span class="dim st" id="s-buyback"></span></div>
+    <div class="row"><button class="btn" data-step="setRouter" disabled>6 · Connect router</button><span class="dim st" id="s-setRouter"></span></div>
+    <div class="row"><button class="btn" data-step="setBuyback" disabled>7 · Connect buyback</button><span class="dim st" id="s-setBuyback"></span></div>
+    <div class="row"><button class="btn" data-step="target" disabled>8 · Allow Universal Router</button><span class="dim st" id="s-target"></span></div>
+    <pre id="out" hidden></pre>
+  </div>
+  <div class="card">
+    <h2>After $TRENDY launches</h2>
+    <p class="dim">The buyback token can be set once. The keeper is the wallet whose key is TRENDY_OPERATOR_KEY in Vercel, so the cron can run buybacks</p>
+    <div class="row"><input id="caIn" placeholder="$TRENDY contract 0x…"><button class="btn" data-step="setTrendy" disabled>Set $TRENDY</button></div>
+    <div class="row"><span class="dim st" id="s-setTrendy"></span></div>
+    <div class="row"><input id="keeperIn" placeholder="keeper wallet 0x…"><button class="btn" data-step="setKeeper" disabled>Set keeper</button></div>
+    <div class="row"><span class="dim st" id="s-setKeeper"></span></div>
+  </div>
+</div>
+<script type="module">
+import * as W from '/lib/wallet.js';
+import { encodeDeployData } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+const $ = id => document.getElementById(id);
+const get = n => fetch('/lib/' + n + '?v=1').then(r => r.json());
+const [TK, PD, FC, RT, BB, C] = await Promise.all(['abi/TrendyToken.json', 'abi/TrendyPad.json', 'abi/TrendyFactory.json', 'abi/TrendyRouter.json', 'abi/TrendyBuyback.json', 'chain.json'].map(get));
+const KEY = 'trendy:deploy';
+let S = {}; try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
+if (!S.buyback && /^0x[0-9a-fA-F]{40}$/.test(window.TRENDY_BUYBACK || '')) S.buyback = window.TRENDY_BUYBACK;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+const link = a => '<span class="ok">' + a + '</span>';
+const btn = k => document.querySelector('[data-step=' + k + ']');
+const isAddr = v => /^0x[0-9a-fA-F]{40}$/.test(v || '');
+
+function paint(w = W.state()) {
+  $('who').textContent = w.address ? W.short(w.address) + (w.onChain ? ' · Robinhood Chain' : ' · wrong network') : '';
+  const on = !!w.address;
+  btn('token').disabled = !on;
+  btn('pad').disabled = !on;
+  btn('factory').disabled = !on || !S.token || !S.pad;
+  btn('router').disabled = !on || !S.factory;
+  btn('buyback').disabled = !on;
+  btn('setRouter').disabled = !on || !S.factory || !S.router || S.routerSet;
+  btn('setBuyback').disabled = !on || !S.factory || !S.buyback || S.buybackSet;
+  btn('target').disabled = !on || !S.buyback;
+  btn('setTrendy').disabled = !on || !S.buyback;
+  btn('setKeeper').disabled = !on || !S.buyback;
+  for (const k of ['token', 'pad', 'factory', 'router', 'buyback']) if (S[k]) $('s-' + k).innerHTML = link(S[k]);
+  if (S.routerSet) $('s-setRouter').innerHTML = link('router connected');
+  if (S.buybackSet) $('s-setBuyback').innerHTML = link('buyback connected');
+  if (S.targetSet) $('s-target').innerHTML = link('Universal Router allowed');
+  if (S.factory && S.router && S.buyback) { $('out').hidden = false; $('out').textContent = 'config.js\n\nwindow.TRENDY_FACTORY = "' + S.factory + '";\nwindow.TRENDY_ROUTER  = "' + S.router + '";\nwindow.TRENDY_BUYBACK = "' + S.buyback + '";'; }
+}
+W.onChange(paint); W.restore().then(paint);
+$('connect').onclick = () => W.connect().catch(e => alert(e.shortMessage || e.message));
+
+async function create(data, label, el) {
+  el.textContent = 'confirm in wallet…';
+  const tx = await W.sendDeploy(data);
+  el.innerHTML = 'sent · <a href="' + W.explorer('tx', tx.hash) + '" target="_blank" rel="noopener">tx</a> · waiting…';
+  const rc = await tx.wait();
+  if (rc.status !== 'success' || !rc.contractAddress) throw Error(label + ' failed');
+  return rc.contractAddress;
+}
+async function call(el, args) {
+  el.textContent = 'confirm in wallet…';
+  const tx = await W.send(args);
+  el.textContent = 'sent · waiting…';
+  const rc = await tx.wait();
+  if (rc.status !== 'success') throw Error('Transaction failed');
+}
+
+const steps = {
+  token: async el => { S.token = await create(TK.bytecode, 'Token implementation', el); },
+  pad: async el => { S.pad = await create(PD.bytecode, 'Pad implementation', el); },
+  factory: async el => {
+    if (S.factory && !confirm('A factory is already deployed from this browser. Deploy a new one?')) return;
+    S.factory = await create(encodeDeployData({ abi: FC.abi, bytecode: FC.bytecode, args: [C.poolManager, S.pad, S.token, C.openTicks, C.curveTicks, C.protocolFeeBps] }), 'Factory', el);
+    delete S.router; delete S.routerSet; delete S.buybackSet;
+  },
+  router: async el => { S.router = await create(encodeDeployData({ abi: RT.abi, bytecode: RT.bytecode, args: [C.poolManager, S.factory] }), 'Router', el); delete S.routerSet; },
+  buyback: async el => {
+    if (S.buyback && !confirm('A buyback is already deployed. Deploy a new one?')) return;
+    S.buyback = await create(BB.bytecode, 'Buyback', el); delete S.buybackSet; delete S.targetSet;
+  },
+  setRouter: async el => { await call(el, { address: S.factory, abi: FC.abi, functionName: 'setRouter', args: [S.router] }); S.routerSet = true; },
+  setBuyback: async el => { await call(el, { address: S.factory, abi: FC.abi, functionName: 'setBuyback', args: [S.buyback] }); S.buybackSet = true; },
+  target: async el => { await call(el, { address: S.buyback, abi: BB.abi, functionName: 'setTarget', args: [C.universalRouter, true] }); S.targetSet = true; },
+  setTrendy: async el => {
+    const ca = $('caIn').value.trim();
+    if (!isAddr(ca)) throw Error('Enter the $TRENDY contract address');
+    await call(el, { address: S.buyback, abi: BB.abi, functionName: 'setTrendy', args: [ca] });
+    el.innerHTML = link('$TRENDY set to ' + ca);
+  },
+  setKeeper: async el => {
+    const k = $('keeperIn').value.trim();
+    if (!isAddr(k)) throw Error('Enter the keeper wallet address');
+    await call(el, { address: S.buyback, abi: BB.abi, functionName: 'setKeeper', args: [k] });
+    el.innerHTML = link('keeper set to ' + k);
+  }
+};
+document.querySelectorAll('[data-step]').forEach(b => b.onclick = async () => {
+  const k = b.dataset.step, el = $('s-' + k);
+  b.disabled = true;
+  try { await steps[k](el); save(); } catch (e) { el.innerHTML = '<span class="bad">' + (e.shortMessage || e.message || e) + '</span>'; }
+  paint();
+});
+</script>
+</body>
+</html>

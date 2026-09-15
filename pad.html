@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Pad · Trendypad</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="kitFont" rel="stylesheet">
+<style id="kitCss"></style>
+<style>
+html,body{margin:0;min-height:100%}
+body{background:#f3efe6}
+[hidden]{display:none!important}
+:root{--acc:#ff2d87;--on:#fff}
+.boot{min-height:100vh;display:grid;place-items:center;font:14px ui-monospace,monospace;color:#5d5763;text-align:center;padding:20px}
+.boot a{color:#e0106f}
+.tp-owner{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 14px;margin:0 0 6px;border:1px dashed currentColor;font-size:13px}
+.tp-owner div{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.m{position:fixed;inset:0;z-index:50;background:rgba(10,8,14,.55);display:grid;place-items:center;padding:16px}
+.mc{position:relative;width:min(460px,100%);max-height:calc(100vh - 32px);overflow:auto;background:#fff;color:#141217;border-radius:20px;padding:20px;font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.mc h3{margin:0 0 4px;font-size:22px;line-height:1.1}
+.mc .x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:24px;cursor:pointer;color:#555}
+.mc label{display:block;font-size:12px;color:#666;margin:10px 0 4px}
+.mc input,.mc textarea{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:10px;padding:10px 12px;font:inherit;outline:0}
+.mc input:focus,.mc textarea:focus{border-color:var(--acc)}
+.mc textarea{min-height:70px;resize:vertical}
+.mc .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mb{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--acc);color:var(--on);font:600 15px system-ui,sans-serif;cursor:pointer;width:100%;margin-top:14px}
+.mb.ghost{background:#f1eef5;color:#141217;width:auto;height:36px;margin:0;font-size:13px}
+.mb:disabled{opacity:.45;cursor:not-allowed}
+.mhead{display:flex;gap:12px;align-items:center;margin-bottom:12px;padding-right:24px}
+.mhead img,.mhead i{width:56px;height:56px;border-radius:14px;object-fit:cover;background:var(--acc);color:var(--on);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:22px;flex:none}
+.mhead small{color:#777}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 10px;font-size:13px;margin:10px 0}
+.kv dt{color:#777}.kv dd{margin:0;text-align:right;font-weight:600}
+.pbar{height:8px;border-radius:8px;background:#eee;overflow:hidden;margin:4px 0 10px}
+.pbar s{display:block;height:100%;background:var(--acc)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:#f1eef5;border-radius:12px;padding:4px;margin-top:8px}
+.tabs button{border:0;background:none;height:36px;border-radius:9px;font:600 14px system-ui,sans-serif;cursor:pointer;color:#555}
+.tabs button.on{background:#fff;color:#141217;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.quick{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.quick button{border:1px solid #ddd;background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
+.quote{font-size:13px;color:#444;margin-top:8px;min-height:18px}
+.note{font-size:12px;color:#777;margin-top:8px}
+.err{font-size:13px;color:#c62a3a;margin-top:8px;min-height:18px}
+.row2{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13px;margin-top:12px;padding-top:12px;border-top:1px solid #eee;flex-wrap:wrap}
+.links{display:flex;gap:10px;font-size:13px;margin-top:10px;flex-wrap:wrap}
+.links a,.links button{color:#141217;background:none;border:0;padding:0;font:inherit;text-decoration:underline;cursor:pointer}
+.wpick{position:fixed;inset:0;background:rgba(10,8,14,.55);display:grid;place-items:center;z-index:60}
+</style>
+</head>
+<body>
+<div id="root"><div class="boot">Reading the pad from Robinhood Chain</div></div>
+
+<div class="m" id="mLaunch" hidden><div class="mc">
+  <button class="x" data-close aria-label="Close">×</button>
+  <h3>Launch a token</h3>
+  <div class="note" id="lNote"></div>
+  <div class="two"><div><label for="lName">Name</label><input id="lName" maxlength="40"></div><div><label for="lSym">Ticker</label><input id="lSym" maxlength="10"></div></div>
+  <label for="lDesc">Description</label><textarea id="lDesc" maxlength="500"></textarea>
+  <label for="lLogo">Logo</label><input id="lLogo" type="file" accept="image/png,image/jpeg,image/webp">
+  <div class="two"><div><label for="lX">X</label><input id="lX" placeholder="https://x.com/…"></div><div><label for="lTg">Telegram</label><input id="lTg" placeholder="https://t.me/…"></div></div>
+  <label for="lBuy">First buy, ETH (optional)</label><input id="lBuy" type="number" min="0" step="0.001" placeholder="0">
+  <button class="mb" id="lGo">Launch</button>
+  <div class="err" id="lErr"></div>
+</div></div>
+
+<div class="m" id="mToken" hidden><div class="mc">
+  <button class="x" data-close aria-label="Close">×</button>
+  <div class="mhead" id="tHead"></div>
+  <dl class="kv" id="tKv"></dl>
+  <div class="pbar"><s id="tBar"></s></div>
+  <div class="tabs"><button data-side="buy" class="on">Buy</button><button data-side="sell">Sell</button></div>
+  <label for="tAmt" id="tAmtL">Amount in ETH</label><input id="tAmt" type="number" min="0" step="any" inputmode="decimal">
+  <div class="quick" id="tQuick"></div>
+  <div class="quote" id="tQuote"></div>
+  <button class="mb" id="tGo">Buy</button>
+  <div class="err" id="tErr"></div>
+  <div class="note">Slippage limit 3%. Trades go through the Trendypad router into the token's Uniswap v4 pool</div>
+  <div class="row2"><span id="tUnc"></span><button class="mb ghost" id="tCollect">Collect fees</button></div>
+  <div class="links" id="tLinks"></div>
+</div></div>
+
+<script type="module">
+import * as W from '/lib/wallet.js';
+import * as TP from '/lib/trendy.js';
+import { padMarkup, kitCSS, fontLink, onColor, esc } from '/lib/kits.js';
+import { parseEther, formatEther } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+
+const $ = id => document.getElementById(id);
+const slug = (location.pathname.match(/^\/p\/([a-z0-9-]+)/i) || [])[1];
+const qpad = new URLSearchParams(location.search).get('pad');
+let pad = null, brand = null, data = null, usd = null, current = null, side = 'buy', mine = { claimable: 0n, balances: {} };
+const metas = {};
+const fmtTok = v => { const n = Number(v) / 1e18; return n >= 1e9 ? (n / 1e9).toFixed(2) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : n.toFixed(2); };
+
+function notFound(msg) {
+  $('root').innerHTML = `<div class="boot"><div><p>${esc(msg)}</p><p><a href="/">Build a pad on Trendypad</a></p></div></div>`;
+}
+
+async function boot() {
+  try {
+    let r = null;
+    if (slug) {
+      const x = await fetch('/api/brand?slug=' + encodeURIComponent(slug));
+      if (!x.ok) return notFound('No pad lives at this address yet');
+      r = await x.json();
+    } else if (/^0x[0-9a-fA-F]{40}$/.test(qpad || '')) {
+      const x = await fetch('/api/brand?pad=' + qpad);
+      r = x.ok ? await x.json() : { pad: qpad, brand: null };
+    } else return notFound('Open a pad from Trendypad');
+    pad = r.pad; brand = r.brand;
+    TP.ethUsd().then(v => { usd = v; });
+    await W.restore();
+    await refresh();
+    setInterval(() => { if (!document.hidden) refresh().catch(() => {}); }, 20000);
+    W.onChange(async () => { await loadMine(); render(); if (current) paintToken(); });
+  } catch (e) { notFound(e.shortMessage || e.message); }
+}
+
+async function refresh() {
+  data = await TP.loadPad(pad);
+  if (!brand) brand = { name: data.name, kit: 'y2k', color: '#ff2d87', tagline: '' };
+  await Promise.all(data.tokens.map(async t => { if (!(t.token in metas)) metas[t.token] = await TP.meta(t.uri); }));
+  await loadMine();
+  render();
+  if (current) { current = data.tokens.find(t => t.token === current.token) || current; paintToken(); }
+}
+async function loadMine() {
+  const a = W.state().address;
+  if (!a || !data) { mine = { claimable: 0n, balances: {} }; return; }
+  const [c, b] = await Promise.all([TP.claimable(pad, a), TP.balances(data.tokens.map(t => t.token), a)]);
+  mine = { claimable: c, balances: b };
+}
+
+function render() {
+  $('kitFont').href = fontLink(brand.kit);
+  $('kitCss').textContent = kitCSS(brand.kit, brand.color);
+  document.documentElement.style.setProperty('--acc', brand.color || '#ff2d87');
+  document.documentElement.style.setProperty('--on', onColor(brand.color || '#ff2d87'));
+  document.title = brand.name + ' · Trendypad';
+  const a = W.state().address;
+  $('root').innerHTML = padMarkup(brand, {
+    tokens: data.tokens.map(t => ({ token: t.token, name: t.name, symbol: t.symbol, image: metas[t.token] && metas[t.token].image, mcapEth: t.mcapEth, progress: t.progress })),
+    stats: { tokens: data.marketCount, feesEth: TP.eth(data.totalEthFees + data.uncollectedEth), poolFeePct: data.poolFeePct, launchFee: data.launchFee ? +TP.fmtEth(TP.eth(data.launchFee)) : 0, curveName: data.curveInfo.name + ' curve' }
+  }, { home: location.pathname + location.search, connectLabel: a ? TP.short(a) : 'Connect', trendypad: '/' });
+  const isOwner = a && data.owner && a.toLowerCase() === data.owner.toLowerCase();
+  if (isOwner || mine.claimable > 0n) {
+    const strip = document.createElement('div');
+    strip.className = 'tp-owner';
+    strip.innerHTML = `<div>${isOwner ? 'You own this pad' : 'You earned creator fees here'} · claimable <b>${TP.fmtEth(TP.eth(mine.claimable))} ETH</b> · uncollected on all tokens ${TP.fmtEth(TP.eth(data.uncollectedEth))} ETH</div><div>${mine.claimable > 0n ? '<button class="tp-btn" data-act="claim">Claim</button>' : ''}${isOwner ? `<a class="tp-btn ghost" href="/?pad=${pad}">Edit site</a>` : ''}</div>`;
+    const top = $('root').querySelector('.tp-top');
+    top.after(strip);
+  }
+}
+
+const step = (el, t) => { $(el).textContent = t; };
+$('root').addEventListener('click', async e => {
+  const act = e.target.closest('[data-act]'), card = e.target.closest('[data-token]');
+  if (act) {
+    const k = act.dataset.act;
+    if (k === 'connect') { e.preventDefault(); W.connect().catch(() => {}); }
+    else if (k === 'launch') openLaunch();
+    else if (k === 'tokens') document.getElementById('tokens')?.scrollIntoView({ behavior: 'smooth' });
+    else if (k === 'claim') {
+      act.disabled = true;
+      try { await TP.claim(pad, t => { act.textContent = t; }); await refresh(); } catch (err) { act.textContent = err.shortMessage || err.message; }
+    }
+  } else if (card) openToken(card.dataset.token);
+});
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { b.closest('.m').hidden = true; if (b.closest('#mToken')) current = null; });
+document.querySelectorAll('.m').forEach(m => m.addEventListener('click', e => { if (e.target === m) { m.hidden = true; if (m.id === 'mToken') current = null; } }));
+addEventListener('keydown', e => { if (e.key === 'Escape') { document.querySelectorAll('.m').forEach(m => m.hidden = true); current = null; } });
+
+/* ---------------- launch */
+function openLaunch() {
+  $('lErr').textContent = '';
+  const lf = data.launchFee || 0n;
+  $('lNote').textContent = `${lf ? 'Launch fee ' + TP.fmtEth(TP.eth(lf)) + ' ETH goes to the pad owner. ' : 'Free to launch. '}Every trade pays ${data.poolFeePct}% in ETH, ${(data.creatorFeeBps / 100).toFixed(2)}% of it to you as the creator`;
+  $('mLaunch').hidden = false;
+}
+$('lGo').onclick = async () => {
+  const b = $('lGo');
+  $('lErr').textContent = '';
+  const name = $('lName').value.trim(), symbol = $('lSym').value.trim().toUpperCase();
+  if (!name || !/^[A-Z0-9]{2,10}$/.test(symbol)) return step('lErr', 'Name and a 2 to 10 character ticker are required');
+  if (!$('lLogo').files[0]) return step('lErr', 'Add a logo');
+  let devEth = 0n;
+  try { devEth = $('lBuy').value ? parseEther($('lBuy').value) : 0n; } catch { return step('lErr', 'First buy is not a valid ETH amount'); }
+  b.disabled = true;
+  try {
+    if (!W.state().address) { b.textContent = 'Connect your wallet'; await W.connect(); }
+    b.textContent = 'Uploading the logo';
+    const image = await TP.toWebp($('lLogo').files[0], 320);
+    const m = await TP.uploadMeta({ name, symbol, description: $('lDesc').value, image, x: $('lX').value, telegram: $('lTg').value });
+    const token = await TP.launchToken(pad, { name, symbol, uri: m.uri, devEth, launchFee: data.launchFee || 0n }, t => { b.textContent = t; });
+    $('mLaunch').hidden = true;
+    ['lName', 'lSym', 'lDesc', 'lX', 'lTg', 'lBuy'].forEach(id => $(id).value = '');
+    $('lLogo').value = '';
+    await refresh();
+    if (token) openToken(token);
+  } catch (e) { step('lErr', e.shortMessage || e.message); }
+  finally { b.disabled = false; b.textContent = 'Launch'; }
+};
+
+/* ---------------- token */
+function openToken(token) {
+  current = data.tokens.find(t => t.token.toLowerCase() === token.toLowerCase());
+  if (!current) return;
+  side = 'buy'; $('tAmt').value = ''; $('tErr').textContent = ''; $('tQuote').textContent = '';
+  $('mToken').hidden = false;
+  paintToken();
+}
+function paintToken() {
+  const t = current, m = metas[t.token] || {};
+  $('tHead').innerHTML = `${m.image ? `<img src="${esc(m.image)}" alt="">` : `<i>${esc(t.symbol.slice(0, 1))}</i>`}<div><h3>${esc(t.name)}</h3><small>$${esc(t.symbol)}${m.description ? ' · ' + esc(m.description.slice(0, 80)) : ''}</small></div>`;
+  const bal = mine.balances[t.token.toLowerCase()] || 0n;
+  $('tKv').innerHTML = `<dt>Market cap</dt><dd>${t.mcapEth != null ? TP.fmtEth(t.mcapEth) + ' ETH' + (usd ? ' · $' + Math.round(t.mcapEth * usd).toLocaleString('en-US') : '') : '·'}</dd><dt>Curve</dt><dd>${Math.min(100, t.progress * 100).toFixed(1)}%</dd><dt>You hold</dt><dd>${W.state().address ? fmtTok(bal) : 'connect'}</dd>`;
+  $('tBar').style.width = Math.min(100, Math.max(1, t.progress * 100)) + '%';
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.side === side));
+  $('tAmtL').textContent = side === 'buy' ? 'Amount in ETH' : `Amount of $${t.symbol}`;
+  $('tQuick').innerHTML = side === 'buy' ? ['0.01', '0.05', '0.1', '0.5'].map(v => `<button data-q="${v}">${v} ETH</button>`).join('') : ['25', '50', '100'].map(v => `<button data-p="${v}">${v === '100' ? 'Max' : v + '%'}</button>`).join('');
+  $('tGo').textContent = side === 'buy' ? `Buy $${t.symbol}` : `Sell $${t.symbol}`;
+  $('tUnc').textContent = `Uncollected fees ${TP.fmtEth(TP.eth(t.uncollectedEth))} ETH`;
+  $('tLinks').innerHTML = `<button id="tCopy">Copy contract</button><a href="${TP.EXPLORER}/token/${t.token}" target="_blank" rel="noopener">Explorer</a><a href="https://dexscreener.com/robinhood/${t.token}" target="_blank" rel="noopener">DexScreener</a>`;
+  $('tCopy').onclick = async () => { try { await navigator.clipboard.writeText(t.token); $('tCopy').textContent = 'Copied'; } catch {} };
+}
+document.querySelector('.tabs').addEventListener('click', e => { const b = e.target.closest('[data-side]'); if (b) { side = b.dataset.side; $('tAmt').value = ''; $('tQuote').textContent = ''; paintToken(); } });
+$('tQuick').addEventListener('click', e => {
+  const q = e.target.closest('[data-q]'), p = e.target.closest('[data-p]');
+  if (q) $('tAmt').value = q.dataset.q;
+  if (p) { const bal = mine.balances[current.token.toLowerCase()] || 0n; $('tAmt').value = formatEther(bal * BigInt(p.dataset.p) / 100n); }
+  quote();
+});
+let qT = 0;
+$('tAmt').addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(quote, 300); });
+async function quote() {
+  const v = $('tAmt').value, t = current;
+  $('tQuote').textContent = '';
+  if (!v || !(Number(v) > 0)) return;
+  try {
+    const amt = parseEther(v);
+    if (side === 'buy') $('tQuote').textContent = `You get about ${fmtTok(await TP.quoteBuy(t.token, amt))} $${t.symbol}`;
+    else if (W.state().address) $('tQuote').textContent = `You get about ${TP.fmtEth(TP.eth(await TP.quoteSell(t.token, amt)))} ETH`;
+    else $('tQuote').textContent = 'Connect to quote a sell';
+  } catch (e) { $('tQuote').textContent = 'No quote: ' + (e.shortMessage || e.message).slice(0, 80); }
+}
+$('tGo').onclick = async () => {
+  const b = $('tGo'), t = current, label = b.textContent;
+  $('tErr').textContent = '';
+  let amt;
+  try { amt = parseEther($('tAmt').value || '0'); } catch { return step('tErr', 'Enter a valid amount'); }
+  if (amt <= 0n) return step('tErr', 'Enter an amount');
+  b.disabled = true;
+  try {
+    if (!W.state().address) { b.textContent = 'Connect your wallet'; await W.connect(); }
+    if (side === 'buy') await TP.buy(t.token, amt, 300, s => { b.textContent = s; });
+    else await TP.sell(t.token, amt, 300, s => { b.textContent = s; });
+    $('tAmt').value = ''; $('tQuote').textContent = 'Done';
+    await refresh();
+  } catch (e) { step('tErr', e.shortMessage || e.message); }
+  finally { b.disabled = false; b.textContent = label; }
+};
+$('tCollect').onclick = async () => {
+  const b = $('tCollect');
+  b.disabled = true;
+  try {
+    if (!W.state().address) await W.connect();
+    await TP.collectFees(pad, current.token, s => { b.textContent = s; });
+    await refresh();
+  } catch (e) { step('tErr', e.shortMessage || e.message); }
+  finally { b.disabled = false; b.textContent = 'Collect fees'; }
+};
+
+boot();
+</script>
+</body>
+</html>

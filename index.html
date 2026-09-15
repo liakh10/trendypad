@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="/config.js"></script>
+<title>Trendypad</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Trendypad: launch your own launchpad on Robinhood Chain in one transaction, with your fees, Uniswap v4 trading from the first block and a site in the trend you pick">
+<meta property="og:title" content="Trendypad">
+<meta property="og:image" content="/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f3efe6;--sheet:#fffdf8;--ink:#16131a;--ink2:#5d5763;--line:#dcd3c3;--pink:#ff2d87;--pink2:#e0106f;--soft:#ffe3ef;--ok:#127a4a;--bad:#c62a3a;--d:'Syne',system-ui,sans-serif;--m:'DM Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+html{overflow-x:hidden;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.55 var(--m);background-image:radial-gradient(rgba(22,19,26,.05) 1px,transparent 1px);background-size:4px 4px}
+[hidden]{display:none!important}
+a{color:inherit}
+img{max-width:100%;display:block}
+button,input,select{font:inherit;color:inherit}
+.wrap{width:min(1200px,100%);margin:0 auto;padding:0 max(16px,env(safe-area-inset-left))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);font:700 14px var(--d);letter-spacing:.01em;cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .12s,background .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn.pink{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 8px 22px rgba(255,45,135,.35)}
+.btn.pink:hover{background:var(--pink2);border-color:var(--pink2)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.sm{height:36px;padding:0 14px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+.top{position:sticky;top:0;z-index:20;background:rgba(243,239,230,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{width:34px;height:34px;border-radius:9px}
+.brand b{font:800 21px var(--d);letter-spacing:-.02em}
+.top nav{display:flex;gap:18px;font-size:13px}
+.top nav a{text-decoration:none;color:var(--ink2)}
+.top nav a:hover{color:var(--pink)}
+.top .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.icon{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center}
+
+.hero{padding:64px 0 56px;border-bottom:1px solid var(--line)}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
+.kick{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);border:1px solid var(--line);background:var(--sheet);padding:5px 12px;border-radius:999px}
+.kick i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 4px rgba(255,45,135,.18)}
+.hero h1{margin:18px 0 0;font:800 clamp(46px,7.4vw,108px)/.92 var(--d);letter-spacing:-.045em}
+.hero h1 em{font-style:normal;color:var(--pink)}
+.hero p{margin:20px 0 0;font-size:16px;color:var(--ink2);max-width:46ch}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.facts{display:flex;gap:22px;flex-wrap:wrap;margin-top:28px;font-size:12px;color:var(--ink2)}
+.facts b{display:block;font:700 22px var(--d);color:var(--ink)}
+.sheets{position:relative;height:460px}
+.sheet{position:absolute;width:74%;aspect-ratio:1.15;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 1px 0 var(--line),0 24px 50px rgba(40,20,40,.18);border:1px solid var(--line)}
+.sheet iframe{width:1100px;height:957px;border:0;transform:scale(var(--k,.3));transform-origin:0 0;pointer-events:none;display:block}
+.sheet:nth-child(1){left:0;top:40px;transform:rotate(-6deg)}
+.sheet:nth-child(2){left:20%;top:0;transform:rotate(3deg);z-index:2}
+.sheet:nth-child(3){right:0;top:120px;transform:rotate(-1deg);z-index:3}
+
+section.band{padding:70px 0;scroll-margin-top:64px}
+.sh{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.sh h2{margin:0;font:800 clamp(34px,4.6vw,62px)/.95 var(--d);letter-spacing:-.035em}
+.sh p{margin:0;color:var(--ink2);max-width:52ch}
+
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:start}
+.form{display:grid;gap:14px}
+.step{background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:18px}
+.step h3{display:flex;align-items:center;gap:10px;margin:0 0 14px;font:800 20px var(--d);letter-spacing:-.02em}
+.step h3 span{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:500 12px var(--m)}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{font-size:12px;color:var(--ink2)}
+.field input[type=text],.field input[type=number],.field input:not([type]){height:42px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:0 12px;outline:0;min-width:0}
+.field input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,45,135,.14)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.logo-pick{display:flex;gap:12px;align-items:center}
+.logo-pick .thumb{width:54px;height:54px;border-radius:14px;border:1px dashed var(--line);background:#fff center/cover no-repeat;display:grid;place-items:center;color:var(--ink2);font-size:11px;flex:none}
+.logo-pick label.btn{cursor:pointer}
+.logo-pick input{display:none}
+.colors{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.colors button{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.colors button.on{box-shadow:0 0 0 2px var(--ink)}
+.colors input[type=color]{width:42px;height:32px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:2px;cursor:pointer}
+.kits{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kit{display:flex;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px;cursor:pointer}
+.kit i{width:34px;height:34px;border-radius:9px;flex:none}
+.kit b{display:block;font:700 14px var(--d)}
+.kit small{display:block;font-size:11px;color:var(--ink2);line-height:1.3}
+.kit.on{border-color:var(--pink);box-shadow:0 0 0 2px var(--pink)}
+.range{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.range input{accent-color:var(--pink);width:100%}
+.range output{font:700 15px var(--d);min-width:52px;text-align:right}
+.curves{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.curve{border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px;text-align:left;cursor:pointer}
+.curve b{display:block;font:700 15px var(--d)}
+.curve small{display:block;font-size:11px;color:var(--ink2);line-height:1.35;margin-top:3px}
+.curve.on{border-color:var(--pink);box-shadow:0 0 0 2px var(--pink)}
+.split{margin-top:12px;display:flex;height:34px;border-radius:10px;overflow:hidden;font-size:11px;border:1px solid var(--line)}
+.split div{display:grid;place-items:center;color:#fff;white-space:nowrap;overflow:hidden;min-width:0}
+.sum{margin:8px 0 0;font-size:12px;color:var(--ink2)}
+.lock{font-size:12px;color:var(--pink2);margin:0 0 10px}
+.slug{display:flex;align-items:center;border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}
+.slug span{padding:0 4px 0 12px;color:var(--ink2);white-space:nowrap}
+.slug input{border:0!important;box-shadow:none!important;flex:1;height:42px;padding:0 12px 0 0;outline:0;min-width:0}
+.state{font-size:12px;margin-top:6px;min-height:18px}
+.state.ok{color:var(--ok)}.state.bad{color:var(--bad)}
+.go{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.progress{font-size:12px;color:var(--ink2);margin-top:10px;min-height:18px}
+.done{margin-top:12px;padding:14px;border-radius:13px;background:var(--soft);border:1px solid #ffc2dc}
+.done a{font-weight:500;color:var(--pink2)}
+.mine{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.mine button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:12px}
+.mine button.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+
+.preview{position:sticky;top:84px}
+.browser{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 60px rgba(40,20,40,.12)}
+.bar{display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border-bottom:1px solid var(--line);background:#faf7f0}
+.bar i{width:10px;height:10px;border-radius:50%;background:#e2d9ca}
+.bar i:first-child{background:var(--pink)}
+.bar .url{flex:1;margin-left:8px;height:26px;border-radius:8px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.browser iframe{width:100%;height:min(760px,calc(100vh - 170px));border:0;display:block;background:#fff}
+.pv-note{font-size:12px;color:var(--ink2);margin-top:10px;text-align:center}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.tile{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tile span{display:block;font-size:11px;color:var(--ink2);text-transform:uppercase;letter-spacing:.08em}
+.tile b{font:800 30px/1.1 var(--d);letter-spacing:-.02em}
+.table{background:var(--sheet);border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;color:var(--ink2);text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+tr:last-child td{border-bottom:0}
+.padname{display:flex;gap:10px;align-items:center}
+.padname img,.padname i{width:34px;height:34px;border-radius:9px;background:var(--pink);flex:none;object-fit:cover;display:grid;place-items:center;color:#fff;font:700 14px var(--d);font-style:normal}
+.padname b{font:700 15px var(--d)}
+.chip{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--ink2)}
+.empty{padding:36px;text-align:center;color:var(--ink2)}
+
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.how div{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:18px}
+.how b{font:800 34px var(--d);color:var(--pink)}
+.how h4{margin:6px 0;font:800 20px var(--d)}
+.how p{margin:0;font-size:13px;color:var(--ink2)}
+
+.cover{padding:80px 0 100px}
+.cover .card{position:relative;width:min(820px,100%);margin:0 auto;background:var(--ink);color:var(--paper);border-radius:26px;padding:clamp(24px,5vw,54px);overflow:hidden;cursor:pointer}
+.cover .card::before{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:var(--pink);filter:blur(70px);opacity:.55}
+.cover .big{position:relative;font:800 clamp(56px,11vw,132px)/.9 var(--d);letter-spacing:-.05em}
+.cover .big em{font-style:normal;color:var(--pink)}
+.cover .lab{position:relative;margin-top:26px;font-size:11px;letter-spacing:.3em;color:#a79fae}
+.cover .addr{position:relative;margin-top:8px;font:500 clamp(11px,2.6vw,20px)/1.3 var(--m);white-space:nowrap;min-height:1.3em}
+.cover .addr.soon{font:800 48px/1 var(--d);color:var(--pink)}
+.cover .addr.real{text-shadow:0 0 16px rgba(255,45,135,.7)}
+.cover .copy{position:relative;margin-top:8px;background:none;border:0;color:var(--pink);font:500 13px var(--m);letter-spacing:.12em;cursor:pointer;padding:4px 0}
+.cover .links{position:relative;display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.cover .btn.ghost{color:var(--paper);border-color:var(--paper)}
+.cover .btn.inv{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+
+@media (max-width:1000px){.hero .wrap{grid-template-columns:1fr}.sheets{height:380px}.builder{grid-template-columns:1fr}.preview{position:static;order:-1}.browser iframe{height:520px}.tiles{grid-template-columns:repeat(2,1fr)}.how{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.top nav{display:none}.hero{padding:36px 0 40px}.sheets{height:280px}.kits{grid-template-columns:1fr}.curves{grid-template-columns:1fr}.two{grid-template-columns:1fr}.how{grid-template-columns:1fr}.top .buy{display:none}.cover .addr.soon{font-size:40px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/favicon.png" alt=""><b>Trendypad</b></a>
+  <nav><a href="#build">Build</a><a href="#pads">Pads</a><a href="#how">How it works</a><a href="/docs">Docs</a></nav>
+  <div class="r">
+    <a class="icon" id="xTop" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="btn ghost sm buy" id="buyTop" target="_blank" rel="noopener">Buy $TRENDY</a>
+    <button class="btn sm" id="connect">Connect</button>
+  </div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="kick"><i></i>Launchpads for launchpads on Robinhood Chain</span>
+    <h1>Launch a <em>launchpad</em></h1>
+    <p>Your own pad with your own fees, tokens that trade on Uniswap v4 from the first block and a site in the trend you pick</p>
+    <div class="cta"><a class="btn pink" href="#build">Build your pad</a><a class="btn ghost" href="#pads">Browse pads</a></div>
+    <div class="facts"><div><b>1 tx</b>to create a pad</div><div><b>Up to 5%</b>owner fee per trade</div><div><b>8</b>site trends</div></div>
+  </div>
+  <div class="sheets" id="sheets"></div>
+</div></section>
+
+<section class="band" id="build"><div class="wrap">
+  <div class="sh"><h2>Build a pad</h2><p>Everything you set here shows up live on the right. Creating the pad is one transaction, publishing the site is one signature</p></div>
+  <div class="builder">
+    <div class="form">
+      <div class="step">
+        <h3><span>1</span>Brand</h3>
+        <div class="mine" id="mine" hidden></div>
+        <div class="two">
+          <div class="field"><label for="fName">Pad name</label><input id="fName" data-f="name" maxlength="40" placeholder="Frog Pad"></div>
+          <div class="field"><label for="fTag">Tagline</label><input id="fTag" data-f="tagline" maxlength="120" placeholder="Only frogs launch here"></div>
+        </div>
+        <div class="field"><label>Logo</label>
+          <div class="logo-pick"><div class="thumb" id="thumb">none</div><label class="btn ghost sm">Upload<input type="file" id="fLogo" accept="image/png,image/jpeg,image/webp"></label><button class="btn ghost sm" id="logoClear" type="button">Remove</button></div>
+        </div>
+        <div class="field"><label>Brand color</label><div class="colors" id="colors"></div></div>
+        <div class="two">
+          <div class="field"><label for="fX">X link</label><input id="fX" data-f="x" placeholder="https://x.com/…"></div>
+          <div class="field"><label for="fTg">Telegram link</label><input id="fTg" data-f="telegram" placeholder="https://t.me/…"></div>
+        </div>
+      </div>
+      <div class="step">
+        <h3><span>2</span>Trend</h3>
+        <div class="kits" id="kits"></div>
+      </div>
+      <div class="step">
+        <h3><span>3</span>Rules</h3>
+        <p class="lock" id="lock" hidden>Fees and the curve are fixed on chain for this pad, only the site can change</p>
+        <div class="field"><label>Your fee on every trade</label><div class="range"><input type="range" id="fOwner" min="0" max="5" step="0.25"><output id="oOwner"></output></div></div>
+        <div class="field"><label>Token creator fee on every trade</label><div class="range"><input type="range" id="fCreator" min="0" max="3" step="0.25"><output id="oCreator"></output></div></div>
+        <div class="field"><label for="fLaunch">Launch fee per token, ETH (0 to 0.05)</label><input id="fLaunch" type="number" min="0" max="0.05" step="0.001"></div>
+        <div class="field"><label>Curve</label><div class="curves" id="curves"></div></div>
+        <div class="split" id="split"></div>
+        <p class="sum" id="sum"></p>
+      </div>
+      <div class="step">
+        <h3><span>4</span>Address</h3>
+        <div class="slug"><span id="host"></span><input id="fSlug" maxlength="32" placeholder="frog-pad" autocomplete="off" spellcheck="false"></div>
+        <div class="state" id="slugState"></div>
+      </div>
+      <div class="step">
+        <h3><span>5</span>Launch</h3>
+        <div class="go"><button class="btn pink" id="create">Create pad</button><button class="btn ghost" id="newPad" hidden>Start a new pad</button></div>
+        <div class="progress" id="progress"></div>
+        <div class="done" id="done" hidden></div>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="browser"><div class="bar"><i></i><i></i><i></i><div class="url" id="pvUrl"></div></div><iframe id="pv" title="Pad site preview"></iframe></div>
+      <div class="pv-note">Sample tokens, the real pad shows its own</div>
+    </div>
+  </div>
+</div></section>
+
+<section class="band" id="pads" style="border-top:1px solid var(--line)"><div class="wrap">
+  <div class="sh"><h2>Pads on Trendypad</h2><p>Read from the Trendypad factory on Robinhood Chain</p></div>
+  <div class="tiles">
+    <div class="tile"><span>Pads</span><b id="tPads">0</b></div>
+    <div class="tile"><span>Tokens launched</span><b id="tTokens">0</b></div>
+    <div class="tile"><span>Fees earned by pads</span><b id="tFees">0 ETH</b></div>
+    <div class="tile"><span>$TRENDY buyback</span><b id="tBurn">0 ETH</b></div>
+  </div>
+  <div class="table"><table><thead><tr><th>Pad</th><th>Owner</th><th>Tokens</th><th>Trade fee</th><th>Fees earned</th><th></th></tr></thead><tbody id="padRows"><tr><td colspan="6" class="empty">No pads yet</td></tr></tbody></table></div>
+</div></section>
+
+<section class="band" id="how" style="border-top:1px solid var(--line)"><div class="wrap">
+  <div class="sh"><h2>How it works</h2><a class="btn ghost sm" href="/docs">Read the docs</a></div>
+  <div class="how">
+    <div><b>01</b><h4>Create</h4><p>The factory clones a pad contract you own, with your fees and curve, for gas only</p></div>
+    <div><b>02</b><h4>Brand</h4><p>Pick a trend and a color, sign once and your site goes live at its own address</p></div>
+    <div><b>03</b><h4>Launch</h4><p>Anyone launches tokens on your pad, each one trades in its own Uniswap v4 pool right away</p></div>
+    <div><b>04</b><h4>Earn</h4><p>Every trade pays you and the token creator in ETH, the protocol share buys and burns $TRENDY</p></div>
+  </div>
+</div></section>
+
+<section class="cover"><div class="wrap">
+  <div class="card" id="caCard" role="button" tabindex="0" aria-label="Copy contract address">
+    <div class="big">$TREN<em>DY</em></div>
+    <div class="lab">CONTRACT</div>
+    <div class="addr" id="caAddr"></div>
+    <button class="copy" id="caCopy" type="button">[ COPY ]</button>
+    <div class="links">
+      <a class="btn pink" id="buyLink" target="_blank" rel="noopener">Buy</a>
+      <a class="btn ghost" id="xLink" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a class="btn inv" id="chartLink" target="_blank" rel="noopener">Chart</a>
+    </div>
+  </div>
+</div></section>
+
+<script type="module">
+import * as W from '/lib/wallet.js';
+import * as TP from '/lib/trendy.js';
+import { KITS, padDocument, SAMPLE_TOKENS, esc } from '/lib/kits.js';
+import { parseEther } from 'https://cdn.jsdelivr.net/npm/viem@2.21.55/+esm';
+
+const $ = id => document.getElementById(id);
+const S = window.SITE, CA = /^0x[0-9a-fA-F]{40}$/.test(S.CA) ? S.CA : null;
+const SWATCHES = ['#ff2d87', '#7b5cff', '#00b894', '#ff7a00', '#1e90ff', '#16131a'];
+const KIT_CHIP = { y2k: 'linear-gradient(135deg,#fff,#aab3c7 50%,#fff)', terminal: '#050807', newsprint: '#f3eee2', arcade: '#140a2b', glass: 'linear-gradient(135deg,#ff2d87,#5b6cff,#00c2a8)', brutal: '#fff', soft: '#ffd9e6', street: 'repeating-linear-gradient(-45deg,#ffd000 0 6px,#111 6px 12px)' };
+const DRAFT = 'trendy:draft';
+const st = { name: '', tagline: '', color: '#ff2d87', kit: 'y2k', logoData: '', logoUrl: '', x: '', telegram: '', owner: 1, creator: 0.5, launchFee: '0', curve: 1, slug: '', pad: null };
+try { Object.assign(st, JSON.parse(localStorage.getItem(DRAFT) || '{}')); } catch {}
+let protocolBps = 50, padFixed = null, slugOk = false;
+const save = () => { try { localStorage.setItem(DRAFT, JSON.stringify({ ...st, logoData: st.logoData.length < 150000 ? st.logoData : '' })); } catch {} };
+
+/* ---------------- links and the contract card */
+$('xTop').href = $('xLink').href = S.X_URL;
+$('buyTop').href = $('buyLink').href = CA ? 'https://www.ponsfamily.com/launchpad/' + CA : window.PONS_HOME;
+$('chartLink').href = CA ? 'https://dexscreener.com/robinhood/' + CA : window.DEX_HOME;
+const addrEl = $('caAddr');
+addrEl.classList.add(CA ? 'real' : 'soon');
+const caText = CA || 'soon';
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) addrEl.textContent = caText;
+else new IntersectionObserver((es, io) => {
+  if (!es[0].isIntersecting) return;
+  io.disconnect();
+  let i = 0;
+  const t = setInterval(() => { addrEl.textContent = caText.slice(0, ++i); if (i >= caText.length) clearInterval(t); }, CA ? 32 : 110);
+}, { threshold: .5 }).observe(addrEl);
+async function copyCA(e) {
+  if (e) e.stopPropagation();
+  const b = $('caCopy');
+  if (!CA) { b.textContent = '[ NOT YET ]'; } else { try { await navigator.clipboard.writeText(CA); b.textContent = '[ COPIED ]'; } catch { b.textContent = '[ COPY FAILED ]'; } }
+  setTimeout(() => b.textContent = '[ COPY ]', 1400);
+}
+$('caCopy').onclick = copyCA;
+$('caCard').addEventListener('click', e => { if (!e.target.closest('a')) copyCA(); });
+$('caCard').addEventListener('keydown', e => { if (e.key === 'Enter') copyCA(); });
+
+/* ---------------- hero sheets: three live trends */
+[['Frog Pad', 'brutal', '#ff2d87', 'Only frogs launch here'], ['Night Shift', 'terminal', '#39ff88', 'Tokens after dark'], ['Mochi Pad', 'soft', '#ff8fb1', 'Soft launches only']].forEach(([name, kit, color, tagline]) => {
+  const d = document.createElement('div');
+  d.className = 'sheet';
+  const f = document.createElement('iframe');
+  f.setAttribute('tabindex', '-1'); f.setAttribute('aria-hidden', 'true'); f.loading = 'lazy';
+  f.srcdoc = padDocument({ name, kit, color, tagline }, { tokens: SAMPLE_TOKENS.slice(0, 3), stats: { tokens: 3, feesEth: 1.2, poolFeePct: 2, launchFee: 0, curveName: 'Standard curve' } });
+  d.appendChild(f);
+  $('sheets').appendChild(d);
+});
+const fitSheets = () => document.querySelectorAll('.sheet').forEach(s => s.style.setProperty('--k', s.clientWidth / 1100));
+addEventListener('resize', fitSheets); fitSheets();
+
+/* ---------------- builder */
+$('host').textContent = location.host + '/p/';
+$('colors').innerHTML = SWATCHES.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('') + `<input type="color" id="fColor" aria-label="Custom color">`;
+$('kits').innerHTML = KITS.map(k => `<button type="button" class="kit" data-kit="${k.id}"><i style="background:${KIT_CHIP[k.id]};border:1px solid #d9d2c5"></i><span><b>${k.name}</b><small>${k.note}</small></span></button>`).join('');
+$('curves').innerHTML = TP.CURVES.map(c => `<button type="button" class="curve" data-curve="${c.id}"><b>${c.name}</b><small>Opens at ${c.open} ETH<br>curve fills at ${c.fill} ETH<br>then about ${c.end} ETH</small></button>`).join('');
+
+function fill() {
+  $('fName').value = st.name; $('fTag').value = st.tagline; $('fX').value = st.x; $('fTg').value = st.telegram;
+  $('fOwner').value = st.owner; $('fCreator').value = st.creator; $('fLaunch').value = st.launchFee; $('fSlug').value = st.slug; $('fColor').value = st.color;
+  paint();
+}
+function bps() { return { owner: Math.round(st.owner * 100), creator: Math.round(st.creator * 100) }; }
+function paint() {
+  const fixed = padFixed;
+  const o = fixed ? fixed.ownerFeeBps : bps().owner, c = fixed ? fixed.creatorFeeBps : bps().creator, p = fixed ? fixed.protocolFeeBps : protocolBps;
+  const total = o + c + p;
+  $('oOwner').textContent = (o / 100).toFixed(2) + '%';
+  $('oCreator').textContent = (c / 100).toFixed(2) + '%';
+  document.querySelectorAll('[data-c]').forEach(b => b.classList.toggle('on', b.dataset.c === st.color));
+  document.querySelectorAll('[data-kit]').forEach(b => b.classList.toggle('on', b.dataset.kit === st.kit));
+  const curve = fixed ? fixed.curve : st.curve;
+  document.querySelectorAll('[data-curve]').forEach(b => b.classList.toggle('on', Number(b.dataset.curve) === curve));
+  const seg = (v, bg, label) => v ? `<div style="flex:${v};background:${bg}">${label} ${(v / 100).toFixed(2)}%</div>` : '';
+  $('split').innerHTML = seg(o, '#ff2d87', 'You') + seg(c, '#7b5cff', 'Creator') + seg(p, '#16131a', '$TRENDY');
+  const lf = fixed ? TP.fmtEth(TP.eth(fixed.launchFee)) : (Number(st.launchFee) || 0);
+  $('sum').textContent = `Traders pay ${(total / 100).toFixed(2)}% of every trade in ETH. Launch fee ${Number(lf) ? lf + ' ETH' : 'free'}`;
+  ['fOwner', 'fCreator', 'fLaunch'].forEach(id => $(id).disabled = !!fixed);
+  $('lock').hidden = !fixed;
+  $('thumb').style.backgroundImage = (st.logoData || st.logoUrl) ? `url("${st.logoData || st.logoUrl}")` : '';
+  $('thumb').textContent = (st.logoData || st.logoUrl) ? '' : 'none';
+  $('create').textContent = st.pad ? 'Publish site' : 'Create pad';
+  $('newPad').hidden = !st.pad;
+  schedulePreview();
+}
+let pvT = 0;
+function schedulePreview() { clearTimeout(pvT); pvT = setTimeout(preview, 150); }
+function preview() {
+  const fixed = padFixed;
+  const total = fixed ? fixed.poolFeePct : (bps().owner + bps().creator + protocolBps) / 100;
+  const curve = TP.CURVES[fixed ? fixed.curve : st.curve];
+  $('pv').srcdoc = padDocument({ name: st.name || 'Your pad', tagline: st.tagline || 'Launch a token in one click, it trades on Uniswap v4 from the first block', kit: st.kit, color: st.color, logo: st.logoData || st.logoUrl, x: st.x, telegram: st.telegram }, { tokens: SAMPLE_TOKENS, stats: { tokens: 4, feesEth: 0.84, poolFeePct: +total.toFixed(2), launchFee: fixed ? +TP.fmtEth(TP.eth(fixed.launchFee)) : Number(st.launchFee) || 0, curveName: curve.name + ' curve' } });
+  $('pvUrl').textContent = location.host + '/p/' + (st.slug || 'your-pad');
+}
+
+document.querySelectorAll('[data-f]').forEach(el => el.addEventListener('input', () => { st[el.dataset.f] = el.value; save(); paint(); }));
+$('fOwner').oninput = e => { st.owner = Number(e.target.value); save(); paint(); };
+$('fCreator').oninput = e => { st.creator = Number(e.target.value); save(); paint(); };
+$('fLaunch').oninput = e => { st.launchFee = e.target.value; save(); paint(); };
+$('colors').addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (b) { st.color = b.dataset.c; $('fColor').value = st.color; save(); paint(); } });
+$('fColor').addEventListener('input', e => { st.color = e.target.value; save(); paint(); });
+$('kits').addEventListener('click', e => { const b = e.target.closest('[data-kit]'); if (b) { st.kit = b.dataset.kit; save(); paint(); } });
+$('curves').addEventListener('click', e => { const b = e.target.closest('[data-curve]'); if (b && !padFixed) { st.curve = Number(b.dataset.curve); save(); paint(); } });
+$('fLogo').addEventListener('change', async e => {
+  try { st.logoData = await TP.toWebp(e.target.files[0], 256); st.logoUrl = ''; save(); paint(); }
+  catch (err) { $('progress').textContent = err.message; }
+  e.target.value = '';
+});
+$('logoClear').onclick = () => { st.logoData = ''; st.logoUrl = ''; save(); paint(); };
+
+let slugT = 0;
+$('fSlug').addEventListener('input', e => {
+  st.slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 32);
+  if (st.slug !== e.target.value) e.target.value = st.slug;
+  save(); schedulePreview();
+  clearTimeout(slugT); slugT = setTimeout(checkSlug, 300);
+});
+async function checkSlug() {
+  const el = $('slugState');
+  slugOk = false;
+  if (!st.slug) { el.textContent = ''; el.className = 'state'; return; }
+  try {
+    const r = await fetch('/api/brand?check=' + encodeURIComponent(st.slug)).then(x => x.json());
+    const mine = st.pad && r.pad && r.pad === st.pad.toLowerCase();
+    if (!r.valid) { el.textContent = '3 to 32 characters, a-z 0-9 and dashes'; el.className = 'state bad'; }
+    else if (r.taken && !mine) { el.textContent = 'Taken, try another'; el.className = 'state bad'; }
+    else { slugOk = true; el.textContent = mine ? 'This is your pad address' : 'Available'; el.className = 'state ok'; }
+  } catch { el.textContent = 'Could not check right now'; el.className = 'state bad'; }
+}
+
+const step = t => { $('progress').textContent = t; };
+$('create').onclick = async () => {
+  const b = $('create');
+  $('done').hidden = true;
+  if (!st.name.trim()) return step('Give your pad a name');
+  await checkSlug();
+  if (!slugOk) return step('Pick a free address for the site');
+  const lf = Number(st.launchFee) || 0;
+  if (!st.pad && (lf < 0 || lf > 0.05)) return step('Launch fee is 0 to 0.05 ETH');
+  b.disabled = true;
+  try {
+    if (!W.state().address) { step('Connect your wallet'); await W.connect(); }
+    if (!st.pad) {
+      if (!TP.FACTORY) throw Error('The Trendypad factory is not deployed yet');
+      st.pad = await TP.createPad({ name: st.name.trim(), ownerBps: bps().owner, creatorBps: bps().creator, launchFee: parseEther(String(lf)), curve: st.curve }, step);
+      save();
+      await loadFixed();
+    }
+    if (st.logoData && !st.logoUrl) { step('Uploading the logo'); st.logoUrl = await TP.uploadLogo(st.logoData); save(); }
+    const r = await TP.publishBrand(st.pad, { slug: st.slug, name: st.name.trim(), tagline: st.tagline, kit: st.kit, color: st.color, logo: st.logoUrl, x: st.x, telegram: st.telegram }, step);
+    step('');
+    $('done').hidden = false;
+    $('done').innerHTML = `Your pad is live at <a href="${r.url}">${esc(location.host + r.url)}</a><br><small>Pad contract ${esc(st.pad)}</small>`;
+    loadShowcase(); loadMine();
+  } catch (e) { step(e.shortMessage || e.message); }
+  finally { b.disabled = false; paint(); }
+};
+$('newPad').onclick = () => {
+  Object.assign(st, { name: '', tagline: '', logoData: '', logoUrl: '', x: '', telegram: '', slug: '', pad: null });
+  padFixed = null; save(); fill(); $('done').hidden = true; $('slugState').textContent = '';
+  document.querySelectorAll('#mine button').forEach(x => x.classList.remove('on'));
+};
+
+async function loadFixed() {
+  padFixed = null;
+  if (!st.pad) return;
+  try { const [info] = await TP.loadPads().then(list => list.filter(p => p.pad.toLowerCase() === st.pad.toLowerCase())); padFixed = info || null; } catch {}
+  paint();
+}
+async function editPad(pad) {
+  st.pad = pad;
+  const r = await fetch('/api/brand?pad=' + pad).then(x => x.ok ? x.json() : null).catch(() => null);
+  if (r && r.brand) Object.assign(st, { name: r.brand.name, tagline: r.brand.tagline, kit: r.brand.kit, color: r.brand.color, logoUrl: r.brand.logo, logoData: '', x: r.brand.x, telegram: r.brand.telegram, slug: r.brand.slug });
+  save(); fill(); await loadFixed(); checkSlug();
+}
+async function loadMine() {
+  const a = W.state().address;
+  $('connect').textContent = a ? TP.short(a) : 'Connect';
+  if (!a || !TP.FACTORY) { $('mine').hidden = true; return; }
+  const pads = await TP.padsOf(a).catch(() => []);
+  if (!pads.length) { $('mine').hidden = true; return; }
+  const brands = (await fetch('/api/brand?pads=' + pads.map(p => p.pad).join(',')).then(r => r.json()).catch(() => ({}))).brands || {};
+  $('mine').hidden = false;
+  $('mine').innerHTML = pads.map(p => `<button type="button" data-pad="${p.pad}" class="${st.pad && st.pad.toLowerCase() === p.pad.toLowerCase() ? 'on' : ''}">Edit ${esc((brands[p.pad.toLowerCase()] || {}).name || p.name)}</button>`).join('');
+}
+$('mine').addEventListener('click', e => { const b = e.target.closest('[data-pad]'); if (b) editPad(b.dataset.pad); });
+$('connect').onclick = () => W.connect().catch(e => step(e.shortMessage || e.message));
+W.onChange(loadMine);
+
+/* ---------------- showcase */
+async function loadShowcase() {
+  if (!TP.FACTORY) { $('padRows').innerHTML = '<tr><td colspan="6" class="empty">Pads show up here once the factory is live</td></tr>'; return; }
+  try {
+    const [pads, bb] = await Promise.all([TP.loadPads(), TP.buybackStats().catch(() => null)]);
+    const brands = pads.length ? ((await fetch('/api/brand?pads=' + pads.map(p => p.pad).join(',')).then(r => r.json()).catch(() => ({}))).brands || {}) : {};
+    $('tPads').textContent = pads.length;
+    $('tTokens').textContent = pads.reduce((s, p) => s + p.marketCount, 0);
+    $('tFees').textContent = TP.fmtEth(TP.eth(pads.reduce((s, p) => s + (p.totalEthFees || 0n), 0n))) + ' ETH';
+    $('tBurn').textContent = bb ? TP.fmtEth(TP.eth(bb.received)) + ' ETH' : '0 ETH';
+    const rows = pads.map(p => ({ ...p, brand: brands[p.pad.toLowerCase()] })).sort((a, b) => (b.totalEthFees > a.totalEthFees ? 1 : b.totalEthFees < a.totalEthFees ? -1 : b.marketCount - a.marketCount));
+    $('padRows').innerHTML = rows.length ? rows.map(p => {
+      const b = p.brand, name = (b && b.name) || p.name, href = b ? '/p/' + b.slug : '/pad?pad=' + p.pad;
+      const kit = b ? (KITS.find(k => k.id === b.kit) || {}).name : 'no site yet';
+      return `<tr><td><div class="padname">${b && b.logo ? `<img src="${esc(b.logo)}" alt="">` : `<i style="background:${esc((b && b.color) || '#ff2d87')}">${esc(name.slice(0, 1))}</i>`}<div><b>${esc(name)}</b><br><span class="chip">${esc(kit)}</span></div></div></td><td>${TP.short(p.owner)}</td><td>${p.marketCount}</td><td>${p.poolFeePct}%</td><td>${TP.fmtEth(TP.eth(p.totalEthFees))} ETH</td><td><a class="btn sm ghost" href="${href}">Open</a></td></tr>`;
+    }).join('') : '<tr><td colspan="6" class="empty">No pads yet, build the first one</td></tr>';
+  } catch (e) { $('padRows').innerHTML = `<tr><td colspan="6" class="empty">Could not read the factory: ${esc(e.shortMessage || e.message)}</td></tr>`; }
+}
+
+TP.protocolFeeBps().then(v => { protocolBps = v; paint(); });
+fill();
+if (st.slug) checkSlug();
+const qp = new URLSearchParams(location.search).get('pad');
+if (/^0x[0-9a-fA-F]{40}$/.test(qp || '')) editPad(qp).then(() => $('build').scrollIntoView());
+else if (st.pad) loadFixed();
+W.restore().then(loadMine);
+loadShowcase();
+fetch('/api/tick').catch(() => {});
+</script>
+</body>
+</html>
